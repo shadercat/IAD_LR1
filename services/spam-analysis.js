@@ -1,4 +1,7 @@
 // https://github.com/shiffman/bayes-classifier-js
+const CLASSIFIER = new Classifier();
+const SPAM = "spam";
+const HAM = "ham";
 
 class Sentence {
     constructor(string, isSpam) { //string, boolean
@@ -9,16 +12,21 @@ class Sentence {
 
 class GuessingStats {
     constructor(percent, quantityOfSentences) { // percent is int from 0 to 100, quantityOfSentences is int from 1 to ...
-
+        this.percent = percent;
+        this.quantityOfSentences = quantityOfSentences;
     }
 }
 
 function learnExamples(sentences) { // Sentence[]
-    
+    sentences.forEach(element => {
+        CLASSIFIER.train(element.string, element.isSpam ? SPAM : HAM);
+    })
+    CLASSIFIER.probabilities();
 } // no return
 
 function isSpam(string) { //string
-
+    let res = CLASSIFIER.guess(string);
+    return res[SPAM].probability > 0.5;
 } // returns boolean
 
 function getStatistics(sentences) { // Sentence[]
@@ -26,20 +34,20 @@ function getStatistics(sentences) { // Sentence[]
 } // returns GuessingStats[]
 
 function thisIsAnExampleAndItWontBeUsed() {
-    let classifier = new Classifier();
+    let classifierLocal = new Classifier();
 
     // Text to train, followed by category name
-    classifier.train("New meeting tomorrow (file)", "+");
-    classifier.train("Corporate party tomorrow", "+");
-    classifier.train("New greeting text", "+");
+    classifierLocal.train("New meeting tomorrow (file)", "+");
+    classifierLocal.train("Corporate party tomorrow", "+");
+    classifierLocal.train("New greeting text", "+");
 
-    classifier.train("Free sales party", "spam");
-    classifier.train("Free file for you", "spam");
-    classifier.train("Free file upload", "spam");
+    classifierLocal.train("Free sales party", "spam");
+    classifierLocal.train("Free file for you", "spam");
+    classifierLocal.train("Free file upload", "spam");
 
-    classifier.probabilities();
+    classifierLocal.probabilities();
 
-    let results = classifier.guess("Free file tomorrow");
-
-    return classifier.guess("Free file tomorrow")['+'].probability;
+    let results = classifierLocal.guess("Free file tomorrow");
+    console.log(results);
+    return classifierLocal.guess("Free file tomorrow")['+'].probability;
 }
