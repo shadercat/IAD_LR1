@@ -1,4 +1,5 @@
 // https://github.com/shiffman/bayes-classifier-js
+// dataset https://www.kaggle.com/uciml/sms-spam-collection-dataset
 const CLASSIFIER = new Classifier();
 const SPAM = "spam";
 const HAM = "ham";
@@ -30,7 +31,19 @@ function isSpam(string) { //string
 } // returns boolean
 
 function getStatistics(sentences) { // Sentence[]
+    let counter = 0;
+    let guessingResult = [];
+    for (let i = 0; i < sentences.length; i++) {
+        let res = isSpam(sentences[i]);
+        if (res === sentences[i].isSpam) {
+            counter++;
+        }
 
+        let percentage = counter / (i + 1 / 100);
+        guessingResult.push(new GuessingStats(Math.floor(percentage * 100), i + 1));
+    }
+
+    return guessingResult;
 } // returns GuessingStats[]
 
 function thisIsAnExampleAndItWontBeUsed() {
