@@ -33,9 +33,9 @@ function isSpam(string) { //string
 function getStatistics(sentences) { // Sentence[]
     let counter = 0;
     let guessingResult = [];
-    for(let i = 0; i < sentences.length; i++){
+    for (let i = 0; i < sentences.length; i++) {
         let res = isSpam(sentences[i]);
-        if(res === sentences[i].isSpam){
+        if (res === sentences[i].isSpam) {
             counter++;
         }
 
