@@ -5,6 +5,8 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <script src="./libs/jquery-3.5.1.js"></script>
     <script src="./libs/classifier.js"></script>
@@ -16,6 +18,20 @@
     <title>Lab 1</title>
     <script>
         $(document).ready(() => {
+            $('#learnBtn').click(e => {
+                $(e.target).prop('disabled', true);
+
+                var spamSentences = getTextAreaSentences('#learning-spam', true);
+                var hamSentences = getTextAreaSentences('#learning-ham', false);
+                var allSentences = spamSentences.concat(hamSentences);
+                learnExamples(allSentences);
+            });
+            $('#checkBtn').click(e => {
+                var text = $('#checkInput').val().trim();
+                var sentence = new Sentence(text, isSpam(text));
+                showMessageIsSpamResult('#outputForIsTest', sentence);
+            });
+
             var data = [
                 new GuessingStats(95, 1),
                 new GuessingStats(90, 2),
@@ -26,22 +42,49 @@
                 new GuessingStats(48, 7),
             ];
 
-            drawStats(data, {
-                container: '#my_dataviz',
-                margin: { top: 30, right: 30, bottom: 70, left: 60 },
-                width: 460,
-                height: 400,
-                barColor: "#69b3a2",
-                xValueSelector: d => d.quantityOfSentences,
-                yValueSelector: d => d.percent,
-            });
+            drawStats(data);
         }); 
     </script>
 </head>
 
-<body>
+<body class="container">
+    <div class="row">
+        <div class="col-12">
+            <span class='h3'>Learning</span>
+            <button id="learnBtn" class="btn btn-success float-right">Learn</button>
+        </div>
+    </div>
 
-    <div id="my_dataviz"></div>
+    <div class="row">
+        <div class="col">
+            <p>Spam</p>
+            <textarea class="form-control" id="learning-spam" rows="3"></textarea>
+        </div>
+
+        <div class="col">
+            <p>Ham</p>
+            <textarea class="form-control" id="learning-ham" rows="3"></textarea>
+        </div>
+    </div>
+
+
+    <div class="row pt-2">
+        <div class="col-11 text-center">
+            <input id="checkInput" class="form-control" type="text" placeholder="Check message">
+        </div>
+        <div class="col-1">
+            <button id="checkBtn" class="btn btn-success float-right">Check</button>
+        </div>
+        <div class="col-12">
+            <p id="outputForIsTest"></p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 text-center">
+            <div id="my_dataviz"></div>
+        </div>
+    </div>
 
 </body>
 

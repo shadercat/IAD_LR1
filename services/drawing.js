@@ -1,4 +1,14 @@
 function drawStats(data, chartSettings) {
+    chartSettings = chartSettings || {
+        container: '#my_dataviz',
+        margin: { top: 30, right: 30, bottom: 70, left: 60 },
+        width: 460,
+        height: 400,
+        barColor: "#69b3a2",
+        xValueSelector: d => d.quantityOfSentences,
+        yValueSelector: d => d.percent,
+    };
+
     var margin = chartSettings.margin;
     var axisWidth = chartSettings.width - margin.left - margin.right;
     var axisHeight = chartSettings.height - margin.top - margin.bottom;
@@ -38,4 +48,21 @@ function drawStats(data, chartSettings) {
         .attr("width", x.bandwidth())
         .attr("height", d => axisHeight - y(yValueSelector(d)))
         .attr("fill", chartSettings.barColor)
+}
+
+function getTextAreaSentences(textarea, isSpam) {
+    var text = $(textarea).val();
+    var sentences = text
+        .split("\n")
+        .map(s => new Sentence(s.trim(), isSpam));
+    return sentences;
+}
+
+function showMessageIsSpamResult(output, sentence) {
+    output = $(output);
+
+    output.addClass(sentence.isSpam ? 'text-warning' : 'text-success');
+    output.removeClass(!sentence.isSpam ? 'text-warning' : 'text-success');
+    var prefix = sentence.isSpam ? '(SPAM) ' : '';
+    output.text(prefix + sentence.string);
 }
