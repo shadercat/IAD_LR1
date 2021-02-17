@@ -1,4 +1,5 @@
 // https://github.com/shiffman/bayes-classifier-js
+// dataset https://www.kaggle.com/uciml/sms-spam-collection-dataset
 const CLASSIFIER = new Classifier();
 const SPAM = "spam";
 const HAM = "ham";
