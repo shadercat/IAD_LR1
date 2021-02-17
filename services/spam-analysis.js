@@ -1,6 +1,7 @@
 // https://github.com/shiffman/bayes-classifier-js
 // dataset https://www.kaggle.com/uciml/sms-spam-collection-dataset
 const CLASSIFIER = new Classifier();
+let ALT_FILE;
 const SPAM = "spam";
 const HAM = "ham";
 
@@ -45,6 +46,37 @@ function getStatistics(sentences) { // Sentence[]
 
     return guessingResult;
 } // returns GuessingStats[]
+
+//setup source file.
+//just use something like <input type="file" onchange="setupSourceFile(this)">
+function setupSourceFile(input) {
+    let file = input.files[0];
+    ALT_FILE = file;
+    return `File name: ${file.name}`
+}
+
+//start learn from file
+function trainClassifierFromFile() {
+    if (ALT_FILE === undefined) {
+        return "File not found";
+    }
+
+    let reader = new FileReader();
+    reader.readAsText(ALT_FILE);
+    reader.onload = function () {
+        let lines = reader.result.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+            let data = lines[i].split(',');
+            CLASSIFIER.train(data[0], data[1]);
+        }
+
+        CLASSIFIER.probabilities();
+    }
+
+    reader.onerror = function () {
+        console.log(reader.error);
+    }
+}
 
 function thisIsAnExampleAndItWontBeUsed() {
     let classifierLocal = new Classifier();
