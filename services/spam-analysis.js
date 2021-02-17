@@ -1,7 +1,8 @@
 // https://github.com/shiffman/bayes-classifier-js
 // dataset https://www.kaggle.com/uciml/sms-spam-collection-dataset
-const CLASSIFIER = new Classifier();
+let CLASSIFIER = new Classifier();
 let ALT_FILE;
+let ALT_CONTROL_FILE;
 const SPAM = "spam";
 const HAM = "ham";
 
@@ -31,6 +32,12 @@ function isSpam(string) { //string
     return new Sentence(string, res[SPAM].probability > 0.5);
 } // returns Sentence
 
+function guessClass(string) {
+    let res = CLASSIFIER.guess(string);
+    console.log(res);
+    return res[SPAM].probability > 0.5 ? SPAM : HAM;
+}
+
 function getStatistics(sentences) { // Sentence[]
     let counter = 0;
     let guessingResult = [];
@@ -55,6 +62,12 @@ function setupSourceFile(input) {
     return `File name: ${file.name}`
 }
 
+function setupControlFile(input) {
+    let file = input.files[0];
+    ALT_CONTROL_FILE = file;
+    return `File name: ${file.name}`
+}
+
 //start learn from file
 function trainClassifierFromFile() {
     if (ALT_FILE === undefined) {
@@ -67,7 +80,8 @@ function trainClassifierFromFile() {
         let lines = reader.result.split('\n');
         for (let i = 0; i < lines.length; i++) {
             let data = lines[i].split(',');
-            CLASSIFIER.train(data[0], data[1]);
+            CLASSIFIER.train(data[1], data[0]);
+            trainCallback(i / (lines.length / 100))
         }
 
         CLASSIFIER.probabilities();
@@ -78,21 +92,82 @@ function trainClassifierFromFile() {
     }
 }
 
-function thisIsAnExampleAndItWontBeUsed() {
-    let classifierLocal = new Classifier();
+function trainCallback(currentState){
+    let indicator = document.getElementById("indicator");
+    indicator.setAttribute("style", `width: ${currentState}%`)
+}
 
-    // Text to train, followed by category name
-    classifierLocal.train("New meeting tomorrow (file)", "+");
-    classifierLocal.train("Corporate party tomorrow", "+");
-    classifierLocal.train("New greeting text", "+");
+function trainDependenceTest(rowsNumberForStep) {
+    if (ALT_CONTROL_FILE === undefined && ALT_FILE === undefined) {
+        return 'File not found';
+    }
 
-    classifierLocal.train("Free sales party", "spam");
-    classifierLocal.train("Free file for you", "spam");
-    classifierLocal.train("Free file upload", "spam");
+    let reader = new FileReader();
+    reader.readAsText(ALT_CONTROL_FILE);
+    reader.onload = function () {
+        let lines = reader.result.split('\n');
+        trainDependence(rowsNumberForStep, lines);
+    }
 
-    classifierLocal.probabilities();
+    reader.onerror = function () {
+        console.log(reader.error);
+    }
+}
 
-    let results = classifierLocal.guess("Free file tomorrow");
+//inner (private) function. Don't use it.
+function trainDependence(rowsNumberForStep, controlData) {
+    if (ALT_FILE === undefined) {
+        return "Files not found";
+    }
+
+    let results = [];
+
+    let reader = new FileReader();
+    reader.readAsText(ALT_FILE);
+    reader.onload = function () {
+        let lines = reader.result.split('\n');
+        let trainRoundsCount = Math.ceil(lines.length / rowsNumberForStep);
+
+        for (let i = 1; i <= trainRoundsCount; i++) {
+            CLASSIFIER = new Classifier();
+            let rowsForTrain = i * rowsNumberForStep;
+            for (let j = 0; j <= rowsForTrain && j < lines.length; j++) {
+                let data = lines[j].split(',');
+                CLASSIFIER.train(data[1], data[0]);
+            }
+
+            CLASSIFIER.probabilities();
+
+            let successfulResult = 0;
+            for (let k = 0; k < controlData.length; k++) {
+                let controlDataLine = controlData[k].split(',');
+                let res = guessClass(controlDataLine[1]);
+                if (res === controlDataLine[0]) {
+                    successfulResult++;
+                }
+            }
+
+            console.log(`${successfulResult}, ${controlData.length}`);
+            let percentageOfSuccess = successfulResult / (controlData.length / 100);
+            results.push(new GuessingStats(percentageOfSuccess, rowsForTrain))
+            testCallback(i / (trainRoundsCount / 100));
+        }
+
+        trainDependenceCallback(results);
+    }
+
+    reader.onerror = function () {
+        console.log(reader.error);
+    }
+}
+
+//callback for testing success rate dependence. Change it accordingly to usage.
+function trainDependenceCallback(results) {
     console.log(results);
-    return classifierLocal.guess("Free file tomorrow")['+'].probability;
+    drawStats(results);
+}
+
+function testCallback(currentState){
+    let indicator = document.getElementById("indicator2");
+    indicator.setAttribute("style", `width: ${currentState}%`)
 }
