@@ -17,32 +17,31 @@
 
     <title>Lab 1</title>
     <script>
+        function parseInputMessages(spamBufferId, hamBufferId) {
+            var spamSentences = getTextAreaSentences(spamBufferId, true);
+            var hamSentences = getTextAreaSentences(hamBufferId, false);
+            var allSentences = spamSentences.concat(hamSentences);
+            return allSentences;
+        }
+
         $(document).ready(() => {
             $('#learnBtn').click(e => {
                 $(e.target).prop('disabled', true);
-
-                var spamSentences = getTextAreaSentences('#learning-spam', true);
-                var hamSentences = getTextAreaSentences('#learning-ham', false);
-                var allSentences = spamSentences.concat(hamSentences);
+                var allSentences = parseInputMessages('#learning-spam', '#learning-ham');
                 learnExamples(allSentences);
             });
             $('#checkBtn').click(e => {
                 var text = $('#checkInput').val().trim();
-                var sentence = new Sentence(text, isSpam(text));
+                var sentence = isSpam(text);
                 showMessageIsSpamResult('#outputForIsTest', sentence);
             });
-
-            var data = [
-                new GuessingStats(95, 1),
-                new GuessingStats(90, 2),
-                new GuessingStats(100, 3),
-                new GuessingStats(78, 4),
-                new GuessingStats(64, 5),
-                new GuessingStats(51, 6),
-                new GuessingStats(48, 7),
-            ];
-
-            drawStats(data);
+            $('#processBtn').click(e => {
+                var allSentences = parseInputMessages('#testing-spam', '#testing-ham');
+                var processedSentences = allSentences.map(s => isSpam(s.string));
+                showProcessedMessages(processedSentences, $('#testing-result'));
+                var stats = getStatistics(allSentences) || [];
+                drawStats(stats);
+            });
         }); 
     </script>
 </head>
@@ -67,7 +66,7 @@
         </div>
     </div>
 
-    <hr/>
+    <hr />
     <div class="row pt-2">
         <div class="col-11 text-center">
             <input id="checkInput" class="form-control" type="text" placeholder="Check message">
@@ -79,7 +78,24 @@
             <p id="outputForIsTest"></p>
         </div>
     </div>
-    <hr/>
+    <hr />
+    <div class="row">
+        <div class="col-4">
+            <p>Spam for testing</p>
+            <textarea class="form-control" id="testing-spam" rows="3"></textarea>
+        </div>
+        <div class="col-4">
+            <p>Ham for testing</p>
+            <textarea class="form-control" id="testing-ham" rows="3"></textarea>
+        </div>
+        <div class="col-4">
+            <p>Result of processing
+                <button id="processBtn" class="btn btn-success float-right">Process</button>
+            </p>
+            <textarea class="form-control" id="testing-result" rows="3"></textarea>
+        </div>
+    </div>
+    <hr />
     <div class="row">
         <div class="col-12 text-center">
             <div id="my_dataviz"></div>

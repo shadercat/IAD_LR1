@@ -26,7 +26,7 @@ function learnExamples(sentences) { // Sentence[]
 
 function isSpam(string) { //string
     let res = CLASSIFIER.guess(string);
-    return res[SPAM].probability > 0.5;
+    return new Sentence(string, res[SPAM].probability > 0.5);
 } // returns boolean
 
 function getStatistics(sentences) { // Sentence[]

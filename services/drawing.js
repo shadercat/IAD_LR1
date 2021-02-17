@@ -66,3 +66,10 @@ function showMessageIsSpamResult(output, sentence) {
     var prefix = sentence.isSpam ? '(SPAM) ' : '';
     output.text(prefix + sentence.string);
 }
+
+function showProcessedMessages(processedSentences, outputTextArea) {
+    var text = processedSentences
+        .map(s => (s.isSpam ? '(SPAM) ' : '') + s.string)
+        .join('\n');
+    outputTextArea.val(text);
+}
