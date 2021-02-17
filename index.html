@@ -4,25 +4,44 @@
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
-
+    <link rel="stylesheet" href="styles.css">
 
     <script src="./libs/jquery-3.5.1.js"></script>
     <script src="./libs/classifier.js"></script>
+    <script src="./libs/d3.js/d3.min.js"></script>
 
     <script src="./services/spam-analysis.js"></script>
     <script src="./services/drawing.js"></script>
 
     <title>Lab 1</title>
     <script>
-        $(document).ready(function () {
-            var res = thisIsAnExampleAndItWontBeUsed();
-            alert(res)
+        $(document).ready(() => {
+            var data = [
+                new GuessingStats(95, 1),
+                new GuessingStats(90, 2),
+                new GuessingStats(100, 3),
+                new GuessingStats(78, 4),
+                new GuessingStats(64, 5),
+                new GuessingStats(51, 6),
+                new GuessingStats(48, 7),
+            ];
+
+            drawStats(data, {
+                container: '#my_dataviz',
+                margin: { top: 30, right: 30, bottom: 70, left: 60 },
+                width: 460,
+                height: 400,
+                barColor: "#69b3a2",
+                xValueSelector: d => d.quantityOfSentences,
+                yValueSelector: d => d.percent,
+            });
         }); 
     </script>
 </head>
 
 <body>
 
+    <div id="my_dataviz"></div>
 
 </body>
 

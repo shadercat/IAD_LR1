@@ -9,7 +9,8 @@ class Sentence {
 
 class GuessingStats {
     constructor(percent, quantityOfSentences) { // percent is int from 0 to 100, quantityOfSentences is int from 1 to ...
-
+        this.percent = percent;
+        this.quantityOfSentences = quantityOfSentences;
     }
 }
 
