@@ -28,13 +28,13 @@ function learnExamples(sentences) { // Sentence[]
 function isSpam(string) { //string
     let res = CLASSIFIER.guess(string);
     return new Sentence(string, res[SPAM].probability > 0.5);
-} // returns boolean
+} // returns Sentence
 
 function getStatistics(sentences) { // Sentence[]
     let counter = 0;
     let guessingResult = [];
     for (let i = 0; i < sentences.length; i++) {
-        let res = isSpam(sentences[i]);
+        let res = isSpam(sentences[i].string).isSpam;
         if (res === sentences[i].isSpam) {
             counter++;
         }
